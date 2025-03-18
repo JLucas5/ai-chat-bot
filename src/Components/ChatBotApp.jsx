@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './ChatBotApp.css'
+import Picker from "@emoji-mart/react"
+import data from '@emoji-mart/data'
 
 const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNewChat}) => {
     const [inputValue, setInputValue] = useState("")
     const [messages, setMessages] = useState(chats[0]?.messages || [])
     const [isTyping, setIsTyping] = useState(false)
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false)
     const chatEndRef = useRef(null)
 
     useEffect(() => {
@@ -12,6 +15,10 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
         setMessages(activeChatObj ? activeChatObj.messages : [])
 
     }, [activeChat, chats])
+
+    const handleEmojiSelect = (emoji) => {
+        setInputValue((prevInput) => prevInput + emoji.native)
+    }
 
     const handleInputChange = (e) => {
         setInputValue(e.target.value)
@@ -29,6 +36,7 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
         if(!activeChat) {
             onNewChat(inputValue)
             setInputValue('')
+
         } else {
             const updatedMessages = [ ...messages, newMessage]
             setMessages(updatedMessages)
@@ -114,7 +122,7 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
         <div className="chat-list">
             <div className="chat-list-header">
                 <h2>Chat List</h2>
-                <i className="bx bx-edit-alt new-chat" onClick={onNewChat}></i>
+                <i className="bx bx-edit-alt new-chat" onClick={() => onNewChat()}></i>
             </div>
             {chats.map((chat) =>(
                 <div key={chat.id} className={`chat-list-item ${chat.id === activeChat ? 'active' : ''}`}
@@ -141,9 +149,18 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
                 <div ref={chatEndRef}></div>
             </div>
             <form className="msg-form"  onSubmit={(e) => e.preventDefault()}>
-                <i className="fa-solid fa-face-smile emoji"></i>
-                <input type="text" className="msg-input" placeholder='Type a message...'
-                 value={inputValue} onChange={handleInputChange} onKeyDown={handleKeyDown}/>
+                <i className="fa-solid fa-face-smile emoji" onClick={() => setShowEmojiPicker((prev) => !prev)}></i>
+                {showEmojiPicker && ( <div className='picker'>
+                    <Picker data={data} onEmojiSelect={handleEmojiSelect}/>
+                </div> )}
+                <input 
+                 type="text" 
+                 className="msg-input" 
+                 placeholder='Type a message...'
+                 value={inputValue} 
+                 onChange={handleInputChange} 
+                 onKeyDown={handleKeyDown}
+                 onFocus={() => setShowEmojiPicker(false)}/>
                 <i className="fa-solid fa-paper-plane" onClick={sendMessage}></i>
             </form>
         </div>
