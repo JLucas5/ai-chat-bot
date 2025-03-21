@@ -16,6 +16,13 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
 
     }, [activeChat, chats])
 
+    useEffect(( ) => {
+        if(activeChat){
+            const storedMessages = JSON.parse(localStorage.getItem(activeChat)) || []
+            setMessages(storedMessages)
+        }
+    }, [activeChat])
+
     const handleEmojiSelect = (emoji) => {
         setInputValue((prevInput) => prevInput + emoji.native)
     }
@@ -40,6 +47,7 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
         } else {
             const updatedMessages = [ ...messages, newMessage]
             setMessages(updatedMessages)
+            localStorage.setItem(activeChat, JSON.stringify(updatedMessages))
             
             setInputValue('')
 
@@ -66,6 +74,7 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
                         max_tokens: 500,
                     }),
                 })
+
             const data = await response.json()
             const chatResponse = data.choices[0].message.content.trim()
 
@@ -77,7 +86,7 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
 
             const updatedMessagesWithResponse = [...updatedMessages, newResponse]
             setMessages(updatedMessagesWithResponse)
-
+            localStorage.setItem(activeChat, JSON.stringify(updatedMessagesWithResponse))
             setIsTyping(false)
 
             const updatedChatsWithResponse = chats.map((chat) => {
@@ -87,6 +96,7 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
                 return chat
             })
             setChats(updatedChatsWithResponse)
+            localStorage.setItem("chats", JSON.stringify(updatedChatsWithResponse))
         }
     }
 
@@ -104,11 +114,13 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
     const handleDeleteChat = (id) => {
         const updatedChats = chats.filter((chat) => chat.id !== id)
         setChats(updatedChats)
+        localStorage.setItem("chats", JSON.stringify(updatedChats))
+        localStorage.removeItem(id)
 
         if(id === activeChat){
             const newActiveChat = updatedChats.length > 0 ? 
             updatedChats[0].id : null
-
+            
             setActiveChat(newActiveChat)
         }
     }
