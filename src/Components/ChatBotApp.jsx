@@ -24,6 +24,10 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
         }
     }, [activeChat])
 
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth'})
+    }, [messages])
+
     const handleEmojiSelect = (emoji) => {
         setInputValue((prevInput) => prevInput + emoji.native)
     }
@@ -126,22 +130,20 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
         }
     }
 
-    useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth'})
-    }, [messages])
+
 
   return (
     <div className='chat-app'>
             <div className={`chat-list ${showChatList ? 'show': ''}`}>
             <div className="chat-list-header">
                 <h2>Chat List</h2>
-                <i className="bx bx-edit-alt new-chat" onClick={() => onNewChat()}></i>
+                <i data-testid="create-button" className="bx bx-edit-alt new-chat" onClick={() => onNewChat()}></i>
             </div>
             {chats.map((chat) =>(
                 <div key={chat.id} className={`chat-list-item ${chat.id === activeChat ? 'active' : ''}`}
                  onClick={() => handleSelectChat(chat.id)}>
                 <h4>{chat.displayId }</h4>
-                <i className="bx bx-x-circle" onClick={(e) => {
+                <i data-testid="delete-button" className="bx bx-x-circle" onClick={(e) => {
                     e.stopPropagation() 
                     handleDeleteChat(chat.id)}}></i>
                 </div>
@@ -176,7 +178,7 @@ const ChatBotApp = ({onGoBack, chats, setChats, activeChat, setActiveChat, onNew
                  onChange={handleInputChange} 
                  onKeyDown={handleKeyDown}
                  onFocus={() => setShowEmojiPicker(false)}/>
-                <i className="fa-solid fa-paper-plane" onClick={sendMessage}></i>
+                <i data-testid="submit-button" className="fa-solid fa-paper-plane" onClick={sendMessage}></i>
             </form>
         </div>
     </div>
